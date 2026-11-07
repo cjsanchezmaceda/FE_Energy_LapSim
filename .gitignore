@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Resultados temporales y cachés
+*.pkl
+results/
+
+# Documentos con copyright (no redistribuir)
+data/fia/*.pdf
+
+# Editor / sistema
+.vscode/
+.DS_Store
