@@ -37,7 +37,7 @@ GEN3_EVO = Car(
     wf = 0.42,
     cdA = 0.9,
     clA = 1.6,
-    mu = 1.6, #reference
+    mu = 1.685,
 )
 
 def mode(car, P_kw, awd=False, **changes):
