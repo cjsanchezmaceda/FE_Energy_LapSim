@@ -115,3 +115,18 @@ if __name__ == "__main__":
     ax1.set_aspect("equal"); ax1.legend()
     ax2.plot(s, kappa); ax2.set_xlabel("s [m]"); ax2.set_ylabel("curvature [1/m]"); ax2.grid()
     plt.show()
+
+from pathlib import Path
+from check_alignment import load_xy
+
+def load_track(ds=2.0):
+    '''KMLs -> spliced lood -> centerline ->racing line -> curvature'''
+    ROOT = Path(__file__).resolve().parents[1]
+    gl = list(load_xy(ROOT / "data/track/jarama_left.kml").values())[0]
+    gr = list(load_xy(ROOT / "data/track/jarama_right.kml").values())[0]
+    loop = load_xy(ROOT / "data/kml/chicane_jarama.kml")
+    left, _ = splice_loop(gl, loop["izquierda chicane path"])
+    right, _ = splice_loop(gr, loop["Derecha Chicane path"])
+    P = min_curvature_line(resample_closed(centerline(left, right), 3.0), left, right)
+    s, _, kappa = curvature_profile(P, ds=ds)
+    return kappa, ds
