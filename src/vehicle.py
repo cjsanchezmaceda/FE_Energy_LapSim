@@ -24,9 +24,10 @@ class Car:
     Crr: float = 0.012
     eta_d: float = 0.93
     eta_r: float = 0.90
+    rear_friction_brakes: bool = False  
 
 GEN3_EVO = Car(
-    m = 856,
+    m = 862, #minimum wight including driver
     P_drive = 300e3, #300 kW normal mode, 350 kW attack mode
     awd = False, #limited to the rear powertrain in normal mode, front motor only in attack mode
     P_front = 50e3, #50 kW front motor in attack mode
@@ -37,7 +38,7 @@ GEN3_EVO = Car(
     wf = 0.42,
     cdA = 0.9,
     clA = 1.6,
-    mu = 1.685,
+    mu = 1.689,
 )
 
 def mode(car, P_kw, awd=False, **changes):
