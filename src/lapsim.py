@@ -47,7 +47,7 @@ def decel(car, v, kappa):
         Fb = min(car.mu*f*N,(car.mu*f*N*car.wf+R)/(1-car.mu*f*hl))
     return (Fb+Fres)/car.m
 
-def simulate(car, kappa, ds):
+def simulate(car, kappa, ds, coast_mask=None):
     '''Flying lap. Returns speed profile, lap time [s] and battery energy [kWh]'''
     n = len(kappa)
     vlat = v_lateral(car, kappa)
@@ -58,11 +58,16 @@ def simulate(car, kappa, ds):
     for i in range(2*n-2, -1, -1):
         vb[i] = min(vl2[i], np.sqrt(vb[i+1]**2 + 2*decel(car,vb[i+1], k2[i+1])*ds))
 
+    m2 = np.zeros(2*n, dtype = bool) if coast_mask is None else np.r_[coast_mask, coast_mask]    
     #forward pass
     v = np.empty(2*n)
     v[0] = vb[0]
     for i in range(2*n-1):
-        v[i+1] = min(vb[i+1], np.sqrt(max(v[i]**2+2*accel(car,v[i],k2[i])*ds,1)))
+        if m2[i]:
+            a = -forces(car, v[i])[0]/car.m # coasting: no drive, only drag + rolling
+        else:
+            a = accel(car,v[i],k2[i])
+        v[i+1] = min(vb[i+1], np.sqrt(max(v[i]**2+2*a*ds,1)))
     v = v[n:]
 
     v_next = np.roll(v,-1)
