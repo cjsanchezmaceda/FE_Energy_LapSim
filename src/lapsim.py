@@ -40,8 +40,11 @@ def decel(car, v, kappa):
     Fres, _ = forces(car, v)
     f, N = grip_fraction(car,v,kappa)
     hl = car.h_cog/car.wheelbase
-    R = car.P_regen_r/(car.eta_r*max(v,1.0))
-    Fb = min(car.mu*f*N,(car.mu*f*N*car.wf+R)/(1-car.mu*f*hl))
+    if car.rear_friction_brakes:
+        Fb = car.mu*f*N
+    else:
+        R = car.P_regen_r/(car.eta_r*max(v,1.0))
+        Fb = min(car.mu*f*N,(car.mu*f*N*car.wf+R)/(1-car.mu*f*hl))
     return (Fb+Fres)/car.m
 
 def simulate(car, kappa, ds):
