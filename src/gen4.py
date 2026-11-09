@@ -16,6 +16,7 @@ GEN4 = replace(GEN3_EVO,
                m=1046, awd=True, P_front=250e3,
                P_regen_f=350e3, P_regen_r=350e3,
                wf=0.44, mu=mu_Gen3*TYRE,
+               wheelbase=3.08,
                rear_friction_brakes=True)
 
 if __name__ == '__main__':
