@@ -1,0 +1,252 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=1.8cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{subcaption}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+
+\captionsetup{font=small,labelfont=bf}
+\setlist{nosep,leftmargin=*}
+\setlength{\parskip}{3pt}
+\setlength{\parindent}{0pt}
+
+% ---------------------------------------------------------------------------
+
+\newif\ifdraft \draftfalse
+\ifdraft
+  \newcommand{\chk}[1]{\textcolor{orange!85!black}{#1}}
+  \newcommand{\tbd}{\textcolor{red}{\textbf{??}}}
+\else
+  \newcommand{\chk}[1]{#1}
+  \newcommand{\tbd}{--}
+\fi
+% Figure that shows a placeholder box until the PNG exists in figures/
+\newcommand{\fig}[2]{%
+  \IfFileExists{figures/#1}{\includegraphics[width=#2]{figures/#1}}%
+  {\fbox{\parbox[c][0.32\linewidth][c]{#2}{\centering\small\texttt{\detokenize{figures/#1}}\par(pending)}}}}
+% ---------------------------------------------------------------------------
+
+\begin{document}
+
+{\Large\bfseries GEN4 at Jarama: lap time and energy projection\\[2pt]
+from a Gen3 Evo lap simulation calibrated on the 2026 Madrid E-Prix}
+
+\smallskip
+Carlos S\'anchez Maceda \hfill 9 November 2026 \hfill
+\href{https://github.com/cjsanchezmaceda/FE_Energy_LapSim}{\texttt{github.com/cjsanchezmaceda/FE\_Energy\_LapSim}}
+
+\noindent\rule{\linewidth}{0.4pt}
+
+\textbf{Summary.}
+A quasi-steady-state (QSS) lap simulation of the Formula~E layout at Jarama was calibrated on the
+best dry FP1 lap of the 2026 Madrid E-Prix and used to project the GEN4 car ahead of the
+16--20 November pre-season test.
+\begin{itemize}
+  \item \textbf{Gen3 Evo calibration:} one free parameter (tyre $\mu = 1.689$) reproduces the
+        350\,kW lap (89.403\,s); the independent 300\,kW lap is predicted to within
+        +0.14\,s. The result is insensitive to the unknown drag area and mass.
+  \item \textbf{GEN4, unconstrained:} \textbf{80.6\,s} in qualifying trim (600\,kW, high-DF),
+        $-8.8$\,s vs Gen3 Evo; high-DF is 1.7\,s faster than low-DF at 600\,kW.
+  \item \textbf{GEN4, energy-limited (450\,kW):} the model supports the intended use of the two kits
+        (high-DF for qualifying, low-DF for races): \textbf{low-DF is faster for any race budget below
+        $\approx$3.6\,kWh/lap}, i.e.\ any race longer than 14 laps on the 51.25\,kWh usable energy;
+        by 3.5\,s at 2.6\,kWh/lap. Lift-and-coast meets the same budget
+        0.9--3.6\,s/lap faster than capping drive power (2.4\,s for Gen3 Evo).
+\end{itemize}
+
+% ===========================================================================
+\section*{1\quad Model}
+
+\textbf{Track.} Track limits digitised from satellite imagery (Google Earth, $\pm0.6$\,m vs GPS
+boundaries), including the FE loop (+30.1\,m). Centreline 3933\,m vs 3934\,m official.
+Racing line: minimum-curvature path (Heilmeier et al., 2020) with 1.3\,m margin to the limits,
+3882\,m, minimum radius 11.6\,m; curvature from a periodic cubic spline, 2\,m resolution.
+
+\textbf{Lap simulation.} Point-mass QSS: cornering limit
+$v^2 = \mu g / (|\kappa| - \mu\rho C_LA/2m)$, backward (braking) and forward (traction) passes on a
+two-lap domain. Combined grip via the friction circle; longitudinal load transfer
+($F h/L$) in traction and braking; battery-side power limits with drive/regen efficiencies;
+Gen3 rear axle braked by regen only (350\,kW), GEN4 with rear friction brakes.
+Energy: $E = \sum P\,\Delta t$ from the wheel power, net of regeneration.
+
+\begin{table}[H]
+\centering\small
+\caption{Vehicle parameters. \emph{Public}: FIA regulations / Formula~E. \emph{Assumed}: not public, quoted with the range tested.}
+\begin{tabular}{@{}llll@{}}
+\toprule
+ & Gen3 Evo & GEN4 & Source \\
+\midrule
+Mass incl.\ driver [kg]        & 862                & 1046                 & FIA Tech.\ Regs (public) \\
+Wheelbase / width [m]          & 2.97 / 1.70        & 3.08 / 1.79          & FIA Tech.\ Regs (public) \\
+Usable race energy [kWh]       & 38.5 + 3.85 PIT BOOST & 51.25             & public \\
+Drive power [kW]               & 300 race / 350     & 450 race / 600       & public \\
+Driven axles                   & RWD; AWD at 350\,kW & AWD                 & public \\
+Regen [kW] front / rear        & 250 / 350          & 350 / 350            & FIA Tech.\ Regs (public) \\
+Rear friction brakes           & no                 & yes                  & public \\
+Tyre $\mu$                     & 1.689 (calibrated) & $1.689\times1.05$     & tyre factor assumed, 1.00--1.10 \\
+$C_DA$ [m$^2$] low / high-DF   & 0.90               & 0.95 / 1.24          & assumed; high-DF $\approx$+30\,\% drag \\
+$C_LA$ [m$^2$] low / high-DF   & 1.6                & 2.7 / 3.8            & assumed \\
+Front motor [kW]               & 50                 & 250                  & FIA Tech.\ Regs (public) \\
+$\eta$ drive / regen           & 0.93 / 0.90        & 0.93 / 0.90          & assumed \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ===========================================================================
+\section*{2\quad Gen3 Evo calibration (Madrid E-Prix 2026, FP1, dry)}
+
+Only the tyre friction coefficient is fitted. Target: best 350\,kW lap of FP1 (Ticktum,
+1:29.403, best of 16 drivers who ran 350\,kW). Check: best 300\,kW lap (Da Costa, 1:31.612,
+best of only 4 drivers, hence an upper bound rather than a limit lap).
+
+\begin{table}[H]
+\centering\small
+\caption{Calibration and robustness. Each row re-fits $\mu$ on the 350\,kW lap.}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Case & $\mu$ & 300\,kW lap [s] & vs FIA 91.612\,s \\
+\midrule
+\textbf{Nominal} ($C_DA$ 0.90, AWD at 350\,kW, 862\,kg) & \textbf{1.689} & \textbf{91.76} & \textbf{+0.14} \\
+$C_DA$ 0.75 / 1.05                                     & 1.675 / 1.703 & 91.70 / 91.83 & +0.08 / +0.22 \\
+Mass 840 / 936\,kg                                     & 1.674 / 1.737 & 91.77 / 91.73 & +0.16 / +0.12 \\
+350\,kW in FP1 without front motor (RWD)               & 1.734         & 90.83         & $-0.78$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+$C_DA$ and mass are absorbed by $\mu$ with $\le 0.07$\,s effect on the prediction. The main open question is whether the front motor was active on the 350\,kW FP1 laps.
+If it was (nominal), the model reproduces the FIA gap between the 350 and 300\,kW laps
+(2.36 vs 2.21\,s). If it was not, $\mu$ rises to 1.734 and the model would place the
+best 300\,kW lap 0.8\,s slower than the car's limit, which is less plausible.
+
+% ===========================================================================
+\section*{3\quad GEN4 projection, unconstrained lap}
+
+\begin{table}[H]
+\centering\small
+\caption{GEN4 flat-out laps, FE layout. $\Delta$ vs Gen3 Evo 350\,kW (89.40\,s).}
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+Kit & Power [kW] & Lap [s] & $\Delta$ [s] & $v_{max}$ [km/h] & $v_{min}$ [km/h] & Energy [kWh] \\
+\midrule
+low-DF  & 450 & 84.97 & $-4.42$ & 273 & 52 & 3.61 \\
+low-DF  & 600 & 82.26 & $-7.14$ & 293 & 52 & 4.36 \\
+high-DF & 450 & 83.65 & $-5.74$ & 267 & 52 & 4.37 \\
+\textbf{high-DF} & \textbf{600} & \textbf{80.59} & $\mathbf{-8.80}$ & 290 & 52 & 5.21 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\fig{fig1_speed_gen3_gen4.png}{0.95\linewidth}
+\caption{Speed vs distance: Gen3 Evo 350\,kW (calibrated) vs GEN4 600\,kW high-DF. Minimum speeds
+in the slow corners are almost unchanged (52 vs 50\,km/h): the GEN4 gains come from power on
+the straights (+25--40\,km/h at the end of each, top speed 290 vs 256\,km/h) and from downforce in the medium-speed corners.}
+\end{figure}
+
+% ===========================================================================
+\section*{4\quad Energy-limited laps}
+
+Two ways of meeting an energy budget per lap. \emph{Lift-and-coast}: the driver lifts off over
+the last fraction $f_c$ of each acceleration phase, measured in distance back from the flat-out
+braking point (no drive, no regen). \emph{Power cap}: lower maximum drive power over the whole lap.
+$f_c$ or the cap is solved so the lap uses exactly the budget.
+
+\textbf{Gen3 Evo check vs the race.} Budget $(38.5+3.85)/23 = 1.84$\,kWh/lap (usable energy +
+PIT BOOST, 23 laps).
+
+\begin{table}[H]
+\centering\small
+\caption{Gen3 Evo, 300\,kW, Madrid race energy budget.}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Strategy & Lap [s] & Energy [kWh] & Setting \\
+\midrule
+Flat-out (no budget)   & 91.75 & 2.34 & -- \\
+Lift-and-coast         & \textbf{95.18} & 1.84 & $f_c = 43$\,\% \\
+Power cap              & 97.55 & 1.84 & 186\,kW \\
+Race: best normal laps, 4 of 5 drivers & 94.8--95.7 & -- & excl.\ lap 1, pit, ATTACK MODE \\
+Race: median normal lap & 98.2 & -- & 80 laps, 5 drivers \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The energy-limited lift-and-coast lap (95.18\,s) falls within the best normal race laps of four
+of the five drivers transcribed, and 3.0\,s below the median, consistent with traffic and racing
+effects that the model does not include. Power capping would cost 2.4\,s/lap more.
+
+\begin{figure}[H]
+\centering
+\fig{fig2_energy_tradeoff_gen4.png}{0.6\linewidth}
+\caption{GEN4 at 450\,kW: lap time vs battery energy per lap, by aero kit and saving strategy.
+The kits cross at 3.60\,kWh/lap: below it, low-DF is faster. On the 51.25\,kWh GEN4 usable
+energy, 3.6\,kWh/lap corresponds to a 14-lap race.}
+\end{figure}
+
+\begin{table}[H]
+\centering\small
+\caption{GEN4 at 450\,kW, lap time [s] for a given energy per lap. Low-DF needs no saving above its flat-out 3.61\,kWh.}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Energy [kWh/lap] & 2.6 & 3.0 & 3.4 & 3.8 & flat-out \\
+\midrule
+low-DF        & 88.66 & 86.15 & 85.08 & 84.97 & 84.97 \\
+high-DF       & 92.14 & 88.34 & 85.81 & 84.39 & 83.65 \\
+$\Delta$ (high $-$ low) & $+3.48$ & $+2.19$ & $+0.73$ & $-0.58$ & $-1.32$ \\
+\midrule
+Power cap, low-DF  & 91.90 & 88.48 & 85.98 & 84.97 & 84.97 \\
+Power cap, high-DF & 95.53 & 91.90 & 88.86 & 86.42 & 83.65 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ===========================================================================
+\section*{5\quad Does the kit conclusion survive the assumptions?}
+
+\begin{table}[H]
+\centering\small
+\caption{$\Delta$ lap time high-DF $-$ low-DF [s], one assumption changed at a time.
+Negative: high-DF faster.}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Case & flat-out, 450\,kW & 3.0\,kWh/lap, lift-and-coast \\
+\midrule
+Nominal                         & $-1.32$ & $+2.20$ \\
+Tyre factor 1.00 / 1.10         & $-1.38$ / $-1.27$ & $+1.80$ / $+2.09$ \\
+High-DF $C_LA$ $-$15 / +15\,\%  & $-0.36$ / $-2.21$ & $+2.34$ / $+1.77$ \\
+High-DF $C_DA$ $-$10 / +10\,\%  & $-1.59$ / $-1.06$ & $+0.92$ / $+3.52$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The sign of the conclusion holds in every case: high-DF is faster on an unconstrained lap,
+low-DF is faster once energy is limited. The high-DF drag area is the assumption that matters
+most for the race case (0.9--3.5\,s); downforce matters most for the flat-out lap.
+The GEN4 test speed traps would pin $C_DA$ down directly.
+
+% ===========================================================================
+\section*{6\quad Limitations and next steps}
+
+\textbf{Limitations.} Point-mass QSS (no transients, no tyre temperature); single $\mu$ for both
+axles; front-motor traction uses static front load; lift-and-coast is a fixed fraction per
+acceleration phase, not an optimal energy allocation; drivetrain efficiencies and all GEN4 aero
+and tyre values are assumed; GEN4 regen split assumed; whether 350\,kW FP1 running used the
+front motor is unconfirmed; track digitised, not surveyed.
+
+\textbf{Next steps.}
+(1)~Re-fit tyre factor and $C_DA$ from GEN4 test laps and speed traps; the model then becomes a
+GEN4 tool.
+(2)~Optimal-control energy allocation (where to coast, lap by lap) instead of a uniform fraction.
+(3)~ATTACK MODE and PIT BOOST deployment strategy over a race distance.
+(4)~Slipstream: energy saved per lap when following.
+
+\end{document}
