@@ -13,3 +13,14 @@ data/fia/*.pdf
 # Editor / sistema
 .vscode/
 .DS_Store
+
+# generated results (re-run src/run_energy.py)
+results/
+
+# LaTeX build files
+report/*.aux
+report/*.log
+report/*.out
+report/*.fls
+report/*.fdb_latexmk
+report/*.synctex.gz
