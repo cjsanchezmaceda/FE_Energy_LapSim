@@ -4,7 +4,7 @@ Quasi-steady-state lap simulation of the Formula E layout at Jarama, calibrated 
 2026 Madrid E-Prix (FP1) and used to project the GEN4 car ahead of the 16–20 November 2026
 pre-season test, with an energy-management study (lift-and-coast vs power cap).
 
-**Report (3 pages):** [`report/report.pdf`](report/report.pdf)
+**Report (3 pages):** [`report/GEN4_Jarama_Projection.pdf`](report/GEN4_Jarama_Projection.pdf)
 
 ![GEN4 lap time vs energy per lap](report/figures/fig2_energy_tradeoff_gen4.png)
 
