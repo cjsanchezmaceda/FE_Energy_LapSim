@@ -12,18 +12,23 @@ def coast_mask(v, frac):
     '''Coast over the last 'frac' of every acceleration phase of a flat-out lap.
     Acceleration phase = consecutive points where speed rises (closed lap)'''
     n = len(v)
-    up = np.roll(v, -1) > v + 1e-9           # speed rises from i to i+1
+    up = np.roll(v, -1) > v + 1e-9
     mask = np.zeros(n, dtype=bool)
-    start = np.argmin(up)                     # start the walk at a point that is NOT accelerating
-    run = []
-    for j in (np.arange(n + 1) + start) % n:  # n+1 steps: ends back at `start`, closing the last run
+    start = np.where(up & ~np.roll(up, 1))[0][0]
+    run, lifted = [], False
+    for j in (np.arange(n) + start) % n:
         if up[j]:
+            lifted = False
             run.append(j)
-        elif run:
-            k = int(round(frac * len(run)))
-            if k:
-                mask[run[-k:]] = True         # last k points before the braking point
-            run = []
+        else:
+            if run:
+                k = int(round(frac * len(run)))
+                if k:
+                    mask[run[-k:]] = True
+                    lifted = True
+                run = []
+            if lifted:
+                mask[j] = True                # no throttle again until the next acceleration phase
     return mask
 
 def lift_coast_for_budget(car, kappa, ds, E_target):
