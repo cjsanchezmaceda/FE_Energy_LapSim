@@ -27,7 +27,7 @@ out = {}
 #Lambda variation with Gen4 Race mode
 car = replace(GEN4, P_drive=450e3, **KITS["low-DF"])
 guess = ocp.initial_guess(car, kappa, ds)
-E0, d = 2.6, 0.01                         # small step: lambda changes quickly with E
+E0, d = 2.6, 0.01
 r0 = ocp.solve(car, kappa, ds, E_max=E0, guess=guess)
 r_lo = ocp.solve(car, kappa, ds, E_max=E0 - d, guess=guess)
 r_hi = ocp.solve(car, kappa, ds, E_max=E0 + d, guess=guess)
@@ -40,8 +40,6 @@ out["gen4"] = {}
 for kit, aero in KITS.items():
     car = replace(GEN4, P_drive=450e3, **aero)
     guess = ocp.initial_guess(car, kappa, ds)
-    # flat-out reference of each method: the comparison is on the COST of saving energy,
-    # so the ~0.2 s discretisation offset between QSS and OCP (step 1) cancels out
     T0_ocp = ocp.solve(car, kappa, ds, guess=guess)["lap_time"]
     T0_qss = simulate(car, kappa, ds)["lap_time"]
     rows = []
@@ -63,7 +61,8 @@ _, lc = lift_coast_for_budget(g3, kappa, ds, E_G3_RACE)
 print(f"C) Gen3 {E_G3_RACE:.2f} kWh/lap | optimal {o['lap_time']:.2f} s (flat {T0_ocp:.2f}) | uniform L&C "
       f"{lc['lap_time']:.2f} s | best normal race laps 94.8-95.7 s | lambda {o['lam']:.2f} s/kWh")
 out["gen3"] = dict(E=E_G3_RACE, T0_ocp=T0_ocp, T_ocp=o["lap_time"], T_lc=lc["lap_time"], lam=o["lam"],
-                   v_ocp=(o["v"] * 3.6).tolist(), v_lc=(lc["v"] * 3.6).tolist())
+                   v_ocp=(o["v"] * 3.6).tolist(), v_lc=(lc["v"] * 3.6).tolist(),
+                   Fd=o["Fd"].tolist(), Fr=o["Fr"].tolist(), Ff=o["Ff"].tolist(), ds=ds)
 
 (ROOT / "results").mkdir(exist_ok=True)
 json.dump(out, open(ROOT / "results" / "ocp_results.json", "w"), indent=1)
