@@ -119,7 +119,7 @@ if __name__ == "__main__":
 from pathlib import Path
 from check_alignment import load_xy
 
-def load_track(ds=2.0):
+def load_track(ds=2.0, with_xy=False):
     '''KMLs -> spliced lood -> centerline ->racing line -> curvature'''
     ROOT = Path(__file__).resolve().parents[1]
     gl = list(load_xy(ROOT / "data/track/jarama_left.kml").values())[0]
@@ -128,5 +128,5 @@ def load_track(ds=2.0):
     left, _ = splice_loop(gl, loop["izquierda chicane path"])
     right, _ = splice_loop(gr, loop["Derecha Chicane path"])
     P = min_curvature_line(resample_closed(centerline(left, right), 3.0), left, right)
-    s, _, kappa = curvature_profile(P, ds=ds)
-    return kappa, ds
+    s, pts, kappa = curvature_profile(P, ds=ds)
+    return (kappa, ds, pts) if with_xy else (kappa, ds)
