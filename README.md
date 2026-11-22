@@ -5,10 +5,9 @@ to project the GEN4 car ahead of the 16–20 November 2026 pre-season test and t
 deployment over a lap.
 
 **Reports**
-- **Update, 15 Nov 2026:** [Optimal energy deployment for GEN4 at Jarama](report/GEN4_Jarama_Energy_Deployment.pdf): minimum-time lap with an energy budget, solved as an optimal control problem ([formulation](docs/OCP_formulation.pdf)).
+- **Test check, 23 Nov 2026:** [GEN4 at the Jarama test: what each power and kit hypothesis implies](report/GEN4_Jarama_Test_Note.pdf). The calibrated model run backwards against the public test times and speed trap.
+- 15 Nov 2026: [Optimal energy deployment for GEN4 at Jarama](report/GEN4_Jarama_Energy_Deployment.pdf): minimum-time lap with an energy budget, solved as an optimal control problem ([formulation](docs/OCP_formulation.pdf)).
 - 9 Nov 2026: [GEN4 at Jarama: lap time and energy projection](report/GEN4_Jarama_Projection.pdf). Its fixed lift-and-coast rule has since been corrected; the update supersedes its energy results.
-
-![GEN4 lap time vs energy per lap: optimal vs fixed rule](report/figures/fig3_ocp_energy_gen4.png)
 
 ## Key results
 
@@ -60,6 +59,8 @@ python src/figures_ocp.py       # report 2 figures
 python src/deployment.py        # corner-by-corner deployment table
 python src/annex_figures.py     # phase map on track and T2 detail
 pytest                          # tests
+python src/inverse_calibration.py   # grip / downforce each power-kit hypothesis needs to match the test laps
+python src/figures_inverse.py       # test-check figure
 ```
 
 ## Repository
@@ -74,8 +75,8 @@ src/
   gen4.py                       GEN4 definition and projection
   energy.py                     fixed lift-and-coast and power-cap solvers
   ocp.py                        minimum-time lap with an energy budget (CasADi + IPOPT)
-  run_*.py, validate_ocp.py, convergence.py, sensitivity.py, deployment.py
-  figures.py, figures_ocp.py, annex_figures.py
+  run_*.py, validate_ocp.py, convergence.py, sensitivity.py, deployment.py, inverse_calibration.py
+  figures.py, figures_ocp.py, annex_figures.py, figures_inverse.py
 test/                           pytest
 data/                           track KMLs and sources (see data/README.md)
 docs/                           optimal control formulation
